@@ -11,6 +11,7 @@
 #include "common/Weather.h"
 #include "common/conf.h" // Create this file and add the variable (OWAPIKEY) for your openweathermap API Key (see https://openweathermap.org/appid)
 #include <ArduinoJson.h>
+#include <Servo.h> 
 
 Ticker ticker;
 WiFiClient espClient;
@@ -29,6 +30,40 @@ void configModeCallback (WiFiManager *myWiFiManager) {
   ticker.attach(0.1, tick);
   Serial.println(myWiFiManager->getConfigPortalSSID());
 }
+
+class Servoset {
+  Servo servo; // the servo
+  int position; // current servo position 
+  int increment; // increment to move for each interval
+  int updateInterval; // interval between updates
+  unsigned long lastUpdate; // last update of position
+
+public: 
+  Servoset(int interval) {
+    updateInterval = interval;
+    increment = 1;
+  }
+  
+  void Attach(int pin) {
+    servo.attach(pin);
+  }
+  
+  void Detach() {
+    servo.detach();
+  }
+  
+  void Update(int position) {
+    if((millis() - lastUpdate) > updateInterval) {
+      lastUpdate = millis();
+      position += increment;
+      servo.write(position);
+      Serial.println(position);
+    }
+  }
+};
+
+Servoset servoset1(30); // Set servo speed
+Servoset servoset2(30); // Set servo speed
 
 void setup() {
   // Sets LED pins
@@ -59,6 +94,9 @@ void setup() {
   TurnOff(RledPin);
   TurnOff(GledPin);
   TurnOff(BledPin);
+
+  servoset1.Attach(9);
+  servoset2.Attach(10);
 }
 
 void loop() {
@@ -147,6 +185,7 @@ void loop() {
 
                 if(timestamp >= sunrise) {
                   Serial.println("Sun is UP!");
+                  servoset1.Update(0);
                   changeColorByHex("ffff00");
                 }
               }
@@ -157,6 +196,7 @@ void loop() {
 
                 if(timestamp >= sunset) {
                   Serial.println("Sun is DOWN!");
+                  servoset1.Update(180);
                   changeColorByHex("0000FF");
                 }
               }
@@ -197,7 +237,7 @@ void loop() {
   delay(60000); // Refresh every minute
 }
 
- // calculate the current phase of the moon
+// calculate the current phase of the moon
 float GetPhase(int nYear, int nMonth, int nDay) {
   float phase;
   double AG, IP;
