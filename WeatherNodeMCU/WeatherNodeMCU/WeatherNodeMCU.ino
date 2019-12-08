@@ -7,11 +7,10 @@
 #include <Ticker.h>
 #include <DNSServer.h>
 #include <ESP8266WebServer.h>
-#include <WiFiManager.h> //https://github.com/tzapu/WiFiManager
+#include <WiFiManager.h> // https://github.com/tzapu/WiFiManager
 #include "common/Weather.h"
 #include "common/conf.h" // Create this file and add the variable (OWAPIKEY) for your openweathermap API Key (see https://openweathermap.org/appid)
 #include <ArduinoJson.h>
-
 
 Ticker ticker;
 WiFiClient espClient;
@@ -32,13 +31,10 @@ void configModeCallback (WiFiManager *myWiFiManager) {
 }
 
 void setup() {
-  // sets the pins as output
+  // Sets LED pins
   pinMode(RledPin, OUTPUT);
   pinMode(GledPin, OUTPUT);
   pinMode(BledPin, OUTPUT);
-  FadeOn(RledPin);
-  FadeOn(GledPin);
-  FadeOn(BledPin);
 
   /* Wifi setup */
   ticker.attach(0.7, tick);
@@ -94,7 +90,7 @@ void loop() {
         const char* city = root["name"];
         const char* weather = root["weather"][0]["main"];
         int temp = root["main"]["temp"];
-        temp = temp * 9 / 5 - 459.67;
+        temp = temp * 9 / 5 - 459.67; // Convert temp to F from K
         int latitude = root["coord"]["lat"];
         int longitude = root["coord"]["lon"];
         int sunrise = root["sys"]["sunrise"];
@@ -129,7 +125,6 @@ void loop() {
             Serial.printf("[HTTP] GET... code: %d\n", httpCode);
 
             if (httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_MOVED_PERMANENTLY) {
-
               // Parsing
               const size_t bufferSize = JSON_OBJECT_SIZE(2) + JSON_OBJECT_SIZE(3) + JSON_OBJECT_SIZE(5) + JSON_OBJECT_SIZE(8) + 370;
               DynamicJsonBuffer jsonBuffer(bufferSize);
@@ -197,68 +192,4 @@ void loop() {
   }
 
   delay(60000); // Refresh every minute
-
-// REMINDERS: - All pins must be faded in first to be able to be faded out after.
-//             - Delay is set at 2ms (check _delay to see it's setting) (255 steps = 1.5seconds for fading in and out)
-//             - loop will only start when wifi is connected and configured. Connect to the SSID named above from a phone or computer to configure.
-
-// FadeOn(RledPin);
-// FadeOn(GledPin);
-// FadeOn(BledPin);
-// FadeOff(GledPin);
-// FadeOff(BledPin);
-// FadeOff(RledPin);
-// FadeOn(GledPin);
-// FadeOff(RledPin);
-// FadeOn(BledPin);
-// FadeOn(RledPin);
-// Pulse(RledPin, 5, 1);
-// Pulse(BledPin, 5, 4);
-// Pulse(GledPin, 5, 10);
-// FadeOff(BledPin);
-// FadeOff(GledPin);
-// FadeOff(RledPin);
-
-//  changeColorByHex("ff0000");
-//  delay(200);
-//  changeColorByHex("c300c5");
-//  delay(200);
-//  changeColorByHex("0013c5");
-//  delay(200);
-//  changeColorByHex("00c5c3");
-//  delay(200);
-//  changeColorByHex("00c54f");
-//  delay(200);
-//  changeColorByHex("25c500");
-//  delay(200);
-//  changeColorByHex("86c500");
-//  delay(200);
-//  changeColorByHex("ffa200");
-//  delay(random(200));
-//  changeColorByHex("ff3c00");
-//  delay(random(200));
-//  changeColorByHex("ff0000");
-//  delay(random(200));
-
-// changeColorByHex("5300ff");
-// delay(random(100));
-// changeColorByHex("0018ff");
-// delay(random(100));
-// changeColorByHex("0060ff");
-// delay(random(100));
-// changeColorByHex("0066ff");
-// delay(random(100));
-
-//  FadeOn(RledPin);
-//  FadeOn(GledPin);
-//  FadeOn(BledPin);
-//  Pulse(RledPin, 5, 1);
-//  Pulse(RledPin, 5, 4);
-//  Pulse(RledPin, 5, 10);
-//  TurnOff(RledPin);
-//  TurnOff(GledPin);
-//  TurnOff(BledPin);
-
-//Serial.println("Main loop end");
-
 }
