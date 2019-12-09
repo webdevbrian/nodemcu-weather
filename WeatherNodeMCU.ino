@@ -60,7 +60,7 @@ void setup() {
 void loop() {
   WiFiClient client;
   HTTPClient http;
-  String WeatherHTTPURL = String("http://api.openweathermap.org/data/2.5/weather?q=waterbury,ctt&cnt=3&appid=" + OWAPIKEY);
+  String WeatherHTTPURL = String("http://api.openweathermap.org/data/2.5/weather?lat=41.548&lon=-73.205&appid=" + OWAPIKEY);
 
   Serial.print("[HTTP] OWM begin...\n");
   if (http.begin(WeatherHTTPURL)) {
