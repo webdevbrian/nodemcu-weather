@@ -64,7 +64,7 @@ void loop() {
   WiFiClient client;
   HTTPClient http;
   String WeatherHTTPURL = String("http://api.openweathermap.org/data/2.5/weather?lat=41.548&lon=-73.205&appid=" + OWAPIKEY);
-
+  Serial.println(WeatherHTTPURL);
   Serial.print("[HTTP] OWM begin...\n");
   if (http.begin(WeatherHTTPURL)) {
 
@@ -94,6 +94,9 @@ void loop() {
         int longitude = root["coord"]["lon"];
         int sunrise = root["sys"]["sunrise"];
         int sunset = root["sys"]["sunset"];
+        int timestamp = root["dt"];
+        int gmtOffset = root["timezone"];
+        String AMorPM;
 
         // Output to serial monitor
         Serial.print("City:");
@@ -107,73 +110,40 @@ void loop() {
         Serial.print("Long:");
         Serial.println(longitude);
 
-        // get response from timezonedb with timestamp
-        // get gmtOffset from timezonedb and add that from openweathermap's sunrise and sunset timestamp hour format
         // Detect if it's AM or PM, then change the servo / LEDs for the day / night detector if the timestamp is greater than the sunrise or sunset
+        sunrise = sunrise + gmtOffset;
+        sunset = sunset + gmtOffset;
+        timestamp = timestamp + gmtOffset;
 
-        String TimezoneDBHTTPURL = String("http://api.timezonedb.com/v2.1/get-time-zone?key=" + TIMEZONEDBKEY + "&format=json&by=position&lat=" + latitude + "&lng=" + longitude);
-        Serial.print("[HTTP] Timezone DB begin...\n");
-        if (http.begin(TimezoneDBHTTPURL)) {
-          Serial.print("[HTTP]  Timezone DB GET...\n");
-          // start connection and send HTTP header
-          int httpCode = http.GET();
-
-          // httpCode will be negative on error
-          if (httpCode > 0) {
-            // HTTP header has been send and Server response header has been handled
-            Serial.printf("[HTTP] GET... code: %d\n", httpCode);
-
-            if (httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_MOVED_PERMANENTLY) {
-              // Parsing
-              const size_t bufferSize = JSON_OBJECT_SIZE(2) + JSON_OBJECT_SIZE(3) + JSON_OBJECT_SIZE(5) + JSON_OBJECT_SIZE(8) + 370;
-              DynamicJsonBuffer jsonBuffer(bufferSize);
-              JsonObject& root = jsonBuffer.parseObject(http.getString());
-
-              String status = root["status"];
-              int timestamp = root["timestamp"];
-              int gmtOffset = root["gmtOffset"];
-              String AMorPM;
-
-              Serial.print("Response status: ");
-              Serial.println(status);
-
-              sunrise = sunrise + gmtOffset;
-              sunset = sunset + gmtOffset;
-
-              if(isAM(timestamp)) {
-                AMorPM = "AM";
-                Serial.println("Morning!");
-              } else if(isPM(timestamp)) {
-                AMorPM = "PM";
-                Serial.println("Evening!");
-              }
-
-              if(timestamp >= sunrise) {
-                Serial.println("Sun is UP!");
-                changeColorByHex("Sun","ffff00");
-              }
-
-              if(timestamp >= sunset) {
-                Serial.println("Sun is DOWN!");
-                changeColorByHex("Sun","0000FF");
-              }
-
-              // This gets the local time of the lat / long, a.k.a local time of device or set weather location :)
-              Serial.print("Time: ");
-              Serial.print(hourFormat12(timestamp));
-              Serial.print(":");
-              Serial.print(minute(timestamp));
-              Serial.println(AMorPM);
-
-              // Show moon phase (0, .25, .5, .75, 1) - 0 is new moon 1 is full moon
-              Serial.print("Moon phase: ");
-              Serial.println(GetPhase(year(timestamp), month(timestamp), day(timestamp)));
-            }
-          } else {
-            // There was an error
-            changeColorByHex("Sun","FF0000");
-          }
+        if(isAM(timestamp)) {
+          AMorPM = "AM";
+          Serial.println("Morning!");
+        } else if(isPM(timestamp)) {
+          AMorPM = "PM";
+          Serial.println("Evening!");
         }
+
+        if(timestamp >= sunrise) {
+          Serial.println("Sun is UP!");
+          changeColorByHex("Sun","ffff00");
+        }
+
+        if(timestamp >= sunset) {
+          Serial.println("Sun is DOWN!");
+          changeColorByHex("Sun","0000FF");
+        }
+
+        // This gets the local time of the lat / long, a.k.a local time of device or set weather location :)
+        Serial.print("Time: ");
+        Serial.print(hourFormat12(timestamp));
+        Serial.print(":");
+        Serial.print(minute(timestamp));
+        Serial.println(AMorPM);
+
+        // Show moon phase (0, .25, .5, .75, 1) - 0 is new moon 1 is full moon
+        Serial.print("Moon phase: ");
+        Serial.println(GetPhase(year(timestamp), month(timestamp), day(timestamp)));
+
 
         // if(temp < 35) {
         //   changeColorByHex("Sun","0000FF");
