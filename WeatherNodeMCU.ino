@@ -19,8 +19,8 @@ PubSubClient client(espClient);
 
 void tick() {
   // toggle state
-  int state = digitalRead(BledPin);
-  digitalWrite(BledPin, !state);
+  int state = digitalRead(SunBledPin);
+  digitalWrite(SunBledPin, !state);
 }
 
 void configModeCallback (WiFiManager *myWiFiManager) {
@@ -33,9 +33,12 @@ void configModeCallback (WiFiManager *myWiFiManager) {
 
 void setup() {
   // Sets LED pins
-  pinMode(RledPin, OUTPUT);
-  pinMode(GledPin, OUTPUT);
-  pinMode(BledPin, OUTPUT);
+  pinMode(SunRledPin, OUTPUT);
+  pinMode(SunGledPin, OUTPUT);
+  pinMode(SunBledPin, OUTPUT);
+  pinMode(CloudRledPin, OUTPUT);
+  pinMode(CloudGledPin, OUTPUT);
+  pinMode(CloudBledPin, OUTPUT);
 
   /* Wifi setup */
   ticker.attach(0.7, tick);
@@ -140,21 +143,19 @@ void loop() {
               if(isAM(timestamp)) {
                 AMorPM = "AM";
                 Serial.println("Morning!");
-
-                if(timestamp >= sunrise) {
-                  Serial.println("Sun is UP!");
-                  changeColorByHex("ffff00");
-                }
-              }
-
-              if(isPM(timestamp)) {
+              } else if(isPM(timestamp)) {
                 AMorPM = "PM";
                 Serial.println("Evening!");
+              }
 
-                if(timestamp >= sunset) {
-                  Serial.println("Sun is DOWN!");
-                  changeColorByHex("0000FF");
-                }
+              if(timestamp >= sunrise) {
+                Serial.println("Sun is UP!");
+                changeColorByHex("Sun","ffff00");
+              }
+
+              if(timestamp >= sunset) {
+                Serial.println("Sun is DOWN!");
+                changeColorByHex("Sun","0000FF");
               }
 
               // This gets the local time of the lat / long, a.k.a local time of device or set weather location :)
@@ -170,16 +171,16 @@ void loop() {
             }
           } else {
             // There was an error
-            changeColorByHex("FF0000");
+            changeColorByHex("Sun","FF0000");
           }
         }
 
         // if(temp < 35) {
-        //   changeColorByHex("0000FF");
+        //   changeColorByHex("Sun","0000FF");
         // } else if (temp > 35 && temp < 70) {
-        //   changeColorByHex("00FF00");
+        //   changeColorByHex("Sun","00FF00");
         // } else if (temp > 70) {
-        //   changeColorByHex("FF0000");
+        //   changeColorByHex("Sun","FF0000");
         // }
       }
     } else {

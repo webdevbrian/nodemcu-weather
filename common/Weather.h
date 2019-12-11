@@ -1,7 +1,10 @@
-/* Basic Single RGB LED control procedures */
-const int RledPin = 14;
-const int GledPin = 12;
-const int BledPin = 13;
+/* LED control procedures */
+const int SunRledPin = 14;
+const int SunGledPin = 12;
+const int SunBledPin = 13;
+const int CloudRledPin = 5;
+const int CloudGledPin = 4;
+const int CloudBledPin = 0;
 
 void TurnOn(int pin) {
   analogWrite(pin, 255);
@@ -58,10 +61,19 @@ int Pulse(int pin, int iterationCount, int speedMs) {
   return(fadeValue);
 }
 
-void changeColorByHex(char* hexString) {
-  TurnOff(RledPin);
-  TurnOff(GledPin);
-  TurnOff(BledPin);
+void changeColorByHex(String RGBLED, char* hexString) {
+
+  if(RGBLED == "Sun") {
+    TurnOff(SunRledPin);
+    TurnOff(SunGledPin);
+    TurnOff(SunBledPin);
+  }
+
+  if(RGBLED == "Cloud") {
+    TurnOff(CloudRledPin);
+    TurnOff(CloudGledPin);
+    TurnOff(CloudBledPin);
+  }
 
   // to RGB
   long number = (long) strtol( &hexString[0], NULL, 16);
@@ -69,7 +81,15 @@ void changeColorByHex(char* hexString) {
   int g = number >> 8 & 0xFF;
   int b = number & 0xFF;
 
-  analogWrite(RledPin, r);
-  analogWrite(GledPin, g);
-  analogWrite(BledPin, b);
+  if(RGBLED == "Sun") {
+    analogWrite(SunRledPin, r);
+    analogWrite(SunGledPin, g);
+    analogWrite(SunBledPin, b);
+  }
+
+  if(RGBLED == "Cloud") {
+    analogWrite(CloudRledPin, r);
+    analogWrite(CloudGledPin, g);
+    analogWrite(CloudBledPin, b);
+  }
 }
