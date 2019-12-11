@@ -16,6 +16,9 @@
 Ticker ticker;
 WiFiClient espClient;
 PubSubClient client(espClient);
+Servo sunMoonServo;
+Servo cloudServo;
+Servo temperatureServo;
 
 void tick() {
   // toggle state
@@ -56,6 +59,10 @@ void setup() {
   // Set the SSID name
   wifiManager.autoConnect("NodeMCURGBWifi");
   Serial.println("Connected to Wifi.");
+
+  sunMoonServo.attach(10); // SDD3
+  // cloudServo.attach(0); // D3
+  // temperatureServo.attach(2); // D4
 
   ticker.detach();
 }
@@ -115,22 +122,38 @@ void loop() {
         sunset = sunset + gmtOffset;
         timestamp = timestamp + gmtOffset;
 
-        if(isAM(timestamp)) {
-          AMorPM = "AM";
-          Serial.println("Morning!");
-        } else if(isPM(timestamp)) {
-          AMorPM = "PM";
-          Serial.println("Evening!");
-        }
-
-        if(timestamp >= sunrise) {
+        if(isAM(timestamp) && timestamp >= sunrise) {
           Serial.println("Sun is UP!");
+          AMorPM = "AM";
           changeColorByHex("Sun","ffff00");
+
+          int i;
+
+          // Rotate servo to Sun 
+          for (i = 0; i < 180; i++) {
+            sunMoonServo.write(i);
+            delay(30);
+          }
+
+          // TODO: Set sun LED
         }
 
-        if(timestamp >= sunset) {
+        if(isPM(timestamp) && timestamp >= sunset) {
           Serial.println("Sun is DOWN!");
+          AMorPM = "PM";
           changeColorByHex("Sun","0000FF");
+
+          int i;
+
+          // Rotate servo to Moon 
+          for (i = 180; i > 0; i--) {
+            sunMoonServo.write(i);
+            delay(30);
+          }
+
+          // TODO: Show LED moon phase (0, .25, .5, .75, 1) - 0 is new moon 1 is full moon
+          Serial.print("Moon phase: ");
+          Serial.println(GetPhase(year(timestamp), month(timestamp), day(timestamp)));
         }
 
         // This gets the local time of the lat / long, a.k.a local time of device or set weather location :)
@@ -139,10 +162,6 @@ void loop() {
         Serial.print(":");
         Serial.print(minute(timestamp));
         Serial.println(AMorPM);
-
-        // Show moon phase (0, .25, .5, .75, 1) - 0 is new moon 1 is full moon
-        Serial.print("Moon phase: ");
-        Serial.println(GetPhase(year(timestamp), month(timestamp), day(timestamp)));
 
 
         // if(temp < 35) {

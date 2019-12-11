@@ -1,10 +1,10 @@
 /* LED control procedures */
-const int SunRledPin = 14;
-const int SunGledPin = 12;
-const int SunBledPin = 13;
-const int CloudRledPin = 5;
-const int CloudGledPin = 4;
-const int CloudBledPin = 0;
+const int SunRledPin = 14; //D5
+const int SunGledPin = 12; //D6
+const int SunBledPin = 13; //D7
+const int CloudRledPin = 5; //D1
+const int CloudGledPin = 4; //D2
+const int CloudBledPin = 0; //D3
 
 void TurnOn(int pin) {
   analogWrite(pin, 255);
