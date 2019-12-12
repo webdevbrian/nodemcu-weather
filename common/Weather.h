@@ -1,4 +1,5 @@
 /* LED control procedures */
+// TODO: Convert Sun and Cloud LEDs to neopixels to save on GPIO pins
 const int SunRledPin = 14; //D5
 const int SunGledPin = 12; //D6
 const int SunBledPin = 13; //D7
