@@ -156,6 +156,21 @@ void loop() {
           Serial.println(GetPhase(year(timestamp), month(timestamp), day(timestamp)));
         }
 
+        // TODO: Cloud LED Set based off of weather condition // only happens when servo is engaged
+        if(weather == "Thunderstorm") {
+          changeColorByHex("Cloud","f6ff00"); // Yellow
+        } else if(weather == "Drizzle") {
+          changeColorByHex("Cloud","0000fa"); // Blue
+        } else if(weather == "Rain") {
+          changeColorByHex("Cloud","0000fa"); // Blue
+        } else if(weather == "Snow") {
+          changeColorByHex("Cloud","00f7fa"); // Cyan
+        } else if(weather == "Clouds") {
+          changeColorByHex("Cloud","ffffff"); // white
+        } else {
+          changeColorByHex("Cloud","8a8a8a"); // Dim Light
+        }
+
         // This gets the local time of the lat / long, a.k.a local time of device or set weather location :)
         Serial.print("Time: ");
         Serial.print(hourFormat12(timestamp));
