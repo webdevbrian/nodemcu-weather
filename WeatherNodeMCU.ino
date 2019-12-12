@@ -22,8 +22,8 @@ Servo temperatureServo;
 
 void tick() {
   // toggle state
-  int state = digitalRead(SunBledPin);
-  digitalWrite(SunBledPin, !state);
+  int state = digitalRead(16);
+  digitalWrite(16, !state);
 }
 
 void configModeCallback (WiFiManager *myWiFiManager) {
@@ -94,7 +94,7 @@ void loop() {
         // Parameters
         int id = root["id"]; // 1
         const char* city = root["name"];
-        const char* weather = root["weather"][0]["main"];
+        String weather = root["weather"][0]["main"];
         int temp = root["main"]["temp"];
         temp = temp * 9 / 5 - 459.67; // Convert temp to F from K
         int latitude = root["coord"]["lat"];
@@ -106,15 +106,15 @@ void loop() {
         String AMorPM;
 
         // Output to serial monitor
-        Serial.print("City:");
+        Serial.print("City: ");
         Serial.println(city);
-        Serial.print("Temperature:");
+        Serial.print("Temperature: ");
         Serial.println(temp);
-        Serial.print("Weather:");
+        Serial.print("Weather: ");
         Serial.println(weather);
-        Serial.print("Lat:");
+        Serial.print("Lat: ");
         Serial.println(latitude);
-        Serial.print("Long:");
+        Serial.print("Long: ");
         Serial.println(longitude);
 
         // Detect if it's AM or PM, then change the servo / LEDs for the day / night detector if the timestamp is greater than the sunrise or sunset
@@ -122,15 +122,22 @@ void loop() {
         sunset = sunset + gmtOffset;
         timestamp = timestamp + gmtOffset;
 
-        if(isAM(timestamp) && timestamp >= sunrise) {
-          Serial.println("Sun is UP!");
+        if(isAM(timestamp)) {
           AMorPM = "AM";
+        }
+
+        if(isPM(timestamp)) {
+          AMorPM = "PM";
+        }
+
+        if(timestamp > sunrise && timestamp < sunset) { // Greater than the sunrise to dusk OR 
+          Serial.println("Sun is UP!");
           changeColorByHex("Sun","ffff00");
 
           int i;
 
           // Rotate servo to Sun 
-          for (i = 0; i < 180; i++) {
+          for (i = 0; i < 90; i++) {
             sunMoonServo.write(i);
             delay(30);
           }
@@ -138,15 +145,14 @@ void loop() {
           // TODO: Set sun LED
         }
 
-        if(isPM(timestamp) && timestamp >= sunset) {
+        if(timestamp < sunset && timestamp < sunrise || timestamp > sunset) { // 12AM to sunrise OR greater than sunset to 12AM
           Serial.println("Sun is DOWN!");
-          AMorPM = "PM";
-          changeColorByHex("Sun","0000FF");
+          changeColorByHex("Sun","000022");
 
           int i;
 
           // Rotate servo to Moon 
-          for (i = 180; i > 0; i--) {
+          for (i = 90; i > 0; i--) {
             sunMoonServo.write(i);
             delay(30);
           }
@@ -156,9 +162,13 @@ void loop() {
           Serial.println(GetPhase(year(timestamp), month(timestamp), day(timestamp)));
         }
 
+        Serial.println(timestamp);
+        Serial.println(sunrise);
+        Serial.println(sunset);
+
         // TODO: Cloud LED Set based off of weather condition // only happens when servo is engaged
         if(weather == "Thunderstorm") {
-          changeColorByHex("Cloud","f6ff00"); // Yellow
+          changeColorByHex("Cloud","ffff00"); // Yellow
         } else if(weather == "Drizzle") {
           changeColorByHex("Cloud","0000fa"); // Blue
         } else if(weather == "Rain") {
@@ -166,9 +176,16 @@ void loop() {
         } else if(weather == "Snow") {
           changeColorByHex("Cloud","00f7fa"); // Cyan
         } else if(weather == "Clouds") {
-          changeColorByHex("Cloud","ffffff"); // white
+          changeColorByHex("Cloud","ffffff"); // White
+        } else if(weather == "Clear") {
+          Serial.println("Weather is clear, shut off cloud LED");
+          changeColorByHex("Cloud","000000");
+          // TODO: Rotate cloud servo to unshown 
         } else {
-          changeColorByHex("Cloud","8a8a8a"); // Dim Light
+          changeColorByHex("Cloud","212121"); // Dim LED
+          Serial.print("Weather condition is some other condition: '");
+          Serial.print(weather);
+          Serial.println("'!");
         }
 
         // This gets the local time of the lat / long, a.k.a local time of device or set weather location :)
@@ -177,7 +194,6 @@ void loop() {
         Serial.print(":");
         Serial.print(minute(timestamp));
         Serial.println(AMorPM);
-
 
         // if(temp < 35) {
         //   changeColorByHex("Sun","0000FF");
@@ -193,79 +209,8 @@ void loop() {
 
     http.end();
   } else {
-    Serial.printf("[HTTP} Unable to connect\n");
+    Serial.printf("[HTTP] Unable to connect\n");
   }
 
-  delay(60000); // Refresh every minute
-}
-
-// calculate the current phase of the moon
-float GetPhase(int nYear, int nMonth, int nDay) {
-  float phase;
-  double AG, IP;
-  long YY, MM, K1, K2, K3, JD;
-  YY = nYear - floor((12 - nMonth) / 10);
-  MM = nMonth + 9;
-
-  if (MM >= 12) {
-    MM = MM - 12;
-  }
-
-  K1 = floor(365.25 * (YY + 4712));
-  K2 = floor(30.6 * MM + 0.5);
-  K3 = floor(floor((YY / 100) + 49) * 0.75) - 38;
-  JD = K1 + K2 + nDay + 59;
-
-  if (JD > 2299160) {
-    JD = JD - K3;
-  }
-
-  IP = MyNormalize((JD - 2451550.1) / 29.530588853);
-  AG = IP*29.53;
-  phase = 0;
-
-  if ((AG < 1.84566) && (phase == 0)) {
-    phase = 0; //new; 0% illuminated
-  }
-
-  if ((AG < 5.53699) && (phase == 0)) {
-    phase = .25; //Waxing crescent; 25% illuminated
-  }
-
-  if ((AG < 9.922831) && (phase == 0)) {
-    phase = .50; //First quarter; 50% illuminated
-  }
-
-  if ((AG < 12.91963) && (phase == 0)) {
-    phase = .75; //Waxing gibbous; 75% illuminated
-  }
-
-  if ((AG < 16.61096) && (phase == 0)) {
-    phase = 1; //Full; 100% illuminated
-  }
-
-  if ((AG < 20.30228) && (phase == 0)) {
-    phase = .75; //Waning gibbous; 75% illuminated
-  }
-
-  if ((AG < 23.99361) && (phase == 0)) {
-    phase = .50; //Last quarter; 50% illuminated
-  }
-
-  if ((AG < 27.68493) && (phase == 0)) {
-    phase = .25; //Waning crescent; 25% illuminated
-  }
-
-  if (phase == 0) {
-    phase = 0; //default to new; 0% illuminated
-  }
-
-  return phase;
-}
-
-double MyNormalize(double v) {
-  v = v - floor(v);
-  if (v < 0)
-  v = v + 1;
-  return v;
+  delay(10000); // Refresh every minute (eventually change this back to 60000)
 }
