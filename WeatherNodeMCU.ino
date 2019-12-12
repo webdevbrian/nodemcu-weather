@@ -1,3 +1,4 @@
+#include <Adafruit_NeoPixel.h>
 #include <Time.h>
 #include <TimeLib.h>
 #include <ESP8266WiFi.h>
@@ -20,10 +21,18 @@ Servo sunMoonServo;
 Servo cloudServo;
 Servo temperatureServo;
 
+#define SUNPIN 14
+#define SUNPIXELS 1
+Adafruit_NeoPixel sunpixels(SUNPIXELS, SUNPIN, NEO_GRB + NEO_KHZ800);
+
+#define CLOUDPIN 12
+#define CLOUDPIXELS 1
+Adafruit_NeoPixel cloudpixels(CLOUDPIXELS, CLOUDPIN, NEO_GRB + NEO_KHZ800);
+
 void tick() {
   // toggle state
-  int state = digitalRead(16);
-  digitalWrite(16, !state);
+  int state = digitalRead(2);
+  digitalWrite(2, !state);
 }
 
 void configModeCallback (WiFiManager *myWiFiManager) {
@@ -35,14 +44,6 @@ void configModeCallback (WiFiManager *myWiFiManager) {
 }
 
 void setup() {
-  // Sets LED pins
-  pinMode(SunRledPin, OUTPUT);
-  pinMode(SunGledPin, OUTPUT);
-  pinMode(SunBledPin, OUTPUT);
-  pinMode(CloudRledPin, OUTPUT);
-  pinMode(CloudGledPin, OUTPUT);
-  pinMode(CloudBledPin, OUTPUT);
-
   /* Wifi setup */
   ticker.attach(0.7, tick);
 
@@ -60,14 +61,42 @@ void setup() {
   wifiManager.autoConnect("NodeMCURGBWifi");
   Serial.println("Connected to Wifi.");
 
-  sunMoonServo.attach(10); // SDD3
-  // cloudServo.attach(0); // D3
-  // temperatureServo.attach(2); // D4
+  sunMoonServo.attach(2); // D4
+  cloudServo.attach(3); // RX
+  // temperatureServo.attach(2); // ?
+
+  sunpixels.begin();
+  sunpixels.show();
+  sunpixels.setBrightness(90);
+
+  cloudpixels.begin();
+  cloudpixels.show();
+  cloudpixels.setBrightness(90);
 
   ticker.detach();
 }
 
+int sunMoonState;
+int cloudState;
+
 void loop() {
+
+ // Set initial servo positions
+
+  // Rotate servo to Moon
+  int i;
+  for (i = 90; i > 0; i--) {
+    sunMoonServo.write(i);
+    delay(30);
+  }
+
+  // Rotate servo to clouds off
+  int j;
+  for (j = 0; j < 130; j++) {
+    cloudServo.write(j);
+    delay(15);
+  }
+
   WiFiClient client;
   HTTPClient http;
   String WeatherHTTPURL = String("http://api.openweathermap.org/data/2.5/weather?lat=41.548&lon=-73.205&appid=" + OWAPIKEY);
@@ -130,32 +159,23 @@ void loop() {
           AMorPM = "PM";
         }
 
-        if(timestamp > sunrise && timestamp < sunset) { // Greater than the sunrise to dusk OR 
+        sunpixels.clear();
+        cloudpixels.clear();
+
+        if(timestamp > sunrise && timestamp < sunset) { // Greater than the sunrise to dusk OR
           Serial.println("Sun is UP!");
-          changeColorByHex("Sun","ffff00");
 
-          int i;
+          sunpixels.setPixelColor(0, sunpixels.Color(255, 246, 11));
+          sunpixels.show(); // Send the updated pixel colors to the hardware.
 
-          // Rotate servo to Sun 
-          for (i = 0; i < 90; i++) {
-            sunMoonServo.write(i);
-            delay(30);
-          }
-
-          // TODO: Set sun LED
+          rotateSunMoon("sun");
         }
 
         if(timestamp < sunset && timestamp < sunrise || timestamp > sunset) { // 12AM to sunrise OR greater than sunset to 12AM
+          rotateSunMoon("moon");
           Serial.println("Sun is DOWN!");
-          changeColorByHex("Sun","000022");
-
-          int i;
-
-          // Rotate servo to Moon 
-          for (i = 90; i > 0; i--) {
-            sunMoonServo.write(i);
-            delay(30);
-          }
+          sunpixels.setPixelColor(0, sunpixels.Color(17, 11, 255));
+          sunpixels.show(); // Send the updated pixel colors to the hardware.
 
           // TODO: Show LED moon phase (0, .25, .5, .75, 1) - 0 is new moon 1 is full moon
           Serial.print("Moon phase: ");
@@ -168,22 +188,34 @@ void loop() {
 
         // TODO: Cloud LED Set based off of weather condition // only happens when servo is engaged
         if(weather == "Thunderstorm") {
-          changeColorByHex("Cloud","ffff00"); // Yellow
+          rotateClouds("on");
+          cloudpixels.setPixelColor(0, sunpixels.Color(255, 246, 7)); // Yellow
+          cloudpixels.show(); // Send
         } else if(weather == "Drizzle") {
-          changeColorByHex("Cloud","0000fa"); // Blue
+          rotateClouds("on");
+          cloudpixels.setPixelColor(0, sunpixels.Color(46, 142, 255)); // Blue
+          cloudpixels.show(); // Send
         } else if(weather == "Rain") {
-          changeColorByHex("Cloud","0000fa"); // Blue
+          rotateClouds("on");
+          cloudpixels.setPixelColor(0, sunpixels.Color(46, 142, 255)); // Blue
+          cloudpixels.show(); // Send
         } else if(weather == "Snow") {
-          changeColorByHex("Cloud","00f7fa"); // Cyan
+          rotateClouds("on");
+          cloudpixels.setPixelColor(0, sunpixels.Color(101, 253, 255)); // Cyan
+          cloudpixels.show(); // Send
         } else if(weather == "Clouds") {
-          changeColorByHex("Cloud","ffffff"); // White
+          rotateClouds("on");
+          cloudpixels.setPixelColor(0, sunpixels.Color(255, 255, 255)); // White
+          cloudpixels.show(); // Send
         } else if(weather == "Clear") {
+          rotateClouds("off");
           Serial.println("Weather is clear, shut off cloud LED");
-          changeColorByHex("Cloud","000000");
-          // TODO: Rotate cloud servo to unshown 
+          cloudpixels.clear();
+          cloudpixels.show(); // Send
         } else {
-          changeColorByHex("Cloud","212121"); // Dim LED
+          rotateClouds("off");
           Serial.print("Weather condition is some other condition: '");
+          cloudpixels.setPixelColor(0, sunpixels.Color(105, 105, 105)); // Dim White
           Serial.print(weather);
           Serial.println("'!");
         }
@@ -212,5 +244,54 @@ void loop() {
     Serial.printf("[HTTP] Unable to connect\n");
   }
 
-  delay(10000); // Refresh every minute (eventually change this back to 60000)
+  delay(20000); // Refresh every minute (eventually change this back to 60000)
+}
+
+void rotateSunMoon(String sunMoon) {
+  int i;
+
+  if(sunMoon == "sun") {
+    //Rotate servo to Sun
+    for (i = 0; i < 90; i++) {
+      sunMoonServo.write(i);
+      delay(30);
+    }
+
+    sunMoonState = 0;
+  }
+  
+  if(sunMoon == "moon") {
+    // Rotate servo to Moon
+    for (i = 90; i > 0; i--) {
+      sunMoonServo.write(i);
+      delay(30);
+    }
+
+    sunMoonState = 1;
+  }
+}
+
+void rotateClouds(String onOff) {
+  int j;
+
+  if(onOff == "on") {
+    // Rotate clouds on
+    for (j = 140; j > 0; j--) {
+      cloudServo.write(j);
+      delay(30);
+    }
+
+    cloudState = 1;
+  }
+
+  if(onOff == "off"){
+    // Rotate clouds off
+    int j;
+    for (j = 0; j < 130; j++) {
+      cloudServo.write(j);
+      delay(30);
+    }
+
+    cloudState = 0;
+  }
 }
