@@ -80,23 +80,6 @@ int sunMoonState;
 int cloudState;
 
 void loop() {
-
- // Set initial servo positions
-
-  // Rotate servo to Moon
-  int i;
-  for (i = 90; i > 0; i--) {
-    sunMoonServo.write(i);
-    delay(30);
-  }
-
-  // Rotate servo to clouds off
-  int j;
-  for (j = 0; j < 130; j++) {
-    cloudServo.write(j);
-    delay(15);
-  }
-
   WiFiClient client;
   HTTPClient http;
   String WeatherHTTPURL = String("http://api.openweathermap.org/data/2.5/weather?lat=41.548&lon=-73.205&appid=" + OWAPIKEY);
@@ -159,22 +142,23 @@ void loop() {
           AMorPM = "PM";
         }
 
+        // Clear the LEDs for new data
         sunpixels.clear();
         cloudpixels.clear();
 
         if(timestamp > sunrise && timestamp < sunset) { // Greater than the sunrise to dusk OR
-          Serial.println("Sun is UP!");
+          rotateSunMoon("sun");
 
+          // Set Sun LED - TODO: add another neopixel for sun
           sunpixels.setPixelColor(0, sunpixels.Color(255, 246, 11));
           sunpixels.show(); // Send the updated pixel colors to the hardware.
-
-          rotateSunMoon("sun");
         }
 
         if(timestamp < sunset && timestamp < sunrise || timestamp > sunset) { // 12AM to sunrise OR greater than sunset to 12AM
           rotateSunMoon("moon");
-          Serial.println("Sun is DOWN!");
-          sunpixels.setPixelColor(0, sunpixels.Color(17, 11, 255));
+
+          // Set moon LED
+          sunpixels.setPixelColor(0, sunpixels.Color(108, 108, 108));
           sunpixels.show(); // Send the updated pixel colors to the hardware.
 
           // TODO: Show LED moon phase (0, .25, .5, .75, 1) - 0 is new moon 1 is full moon
@@ -182,22 +166,18 @@ void loop() {
           Serial.println(GetPhase(year(timestamp), month(timestamp), day(timestamp)));
         }
 
-        Serial.println(timestamp);
-        Serial.println(sunrise);
-        Serial.println(sunset);
-
-        // TODO: Cloud LED Set based off of weather condition // only happens when servo is engaged
+        // Weather condition checks
         if(weather == "Thunderstorm") {
           rotateClouds("on");
           cloudpixels.setPixelColor(0, sunpixels.Color(255, 246, 7)); // Yellow
           cloudpixels.show(); // Send
         } else if(weather == "Drizzle") {
           rotateClouds("on");
-          cloudpixels.setPixelColor(0, sunpixels.Color(46, 142, 255)); // Blue
+          cloudpixels.setPixelColor(0, sunpixels.Color(00, 00, 255)); // Blue
           cloudpixels.show(); // Send
         } else if(weather == "Rain") {
           rotateClouds("on");
-          cloudpixels.setPixelColor(0, sunpixels.Color(46, 142, 255)); // Blue
+          cloudpixels.setPixelColor(0, sunpixels.Color(00, 00, 255)); // Blue
           cloudpixels.show(); // Send
         } else if(weather == "Snow") {
           rotateClouds("on");
@@ -251,6 +231,13 @@ void rotateSunMoon(String sunMoon) {
   int i;
 
   if(sunMoon == "sun") {
+    if (sunMoonState == 0) {
+      return;
+    }
+
+    Serial.print("Turning to sun...");
+    Serial.println(sunMoonState);
+
     //Rotate servo to Sun
     for (i = 0; i < 90; i++) {
       sunMoonServo.write(i);
@@ -259,8 +246,15 @@ void rotateSunMoon(String sunMoon) {
 
     sunMoonState = 0;
   }
-  
+
   if(sunMoon == "moon") {
+    if (sunMoonState == 1) {
+      return;
+    }
+
+    Serial.print("Turning to moon...");
+    Serial.println(sunMoonState);
+
     // Rotate servo to Moon
     for (i = 90; i > 0; i--) {
       sunMoonServo.write(i);
@@ -275,6 +269,13 @@ void rotateClouds(String onOff) {
   int j;
 
   if(onOff == "on") {
+    if(cloudState == 1) {
+      return;
+    }
+
+    Serial.print("Turning to clouds...");
+    Serial.println(cloudState);
+
     // Rotate clouds on
     for (j = 140; j > 0; j--) {
       cloudServo.write(j);
@@ -284,7 +285,14 @@ void rotateClouds(String onOff) {
     cloudState = 1;
   }
 
-  if(onOff == "off"){
+  if(onOff == "off") {
+    if(cloudState == 0) {
+      return;
+    }
+
+    Serial.print("Turning off clouds...");
+    Serial.println(cloudState);
+
     // Rotate clouds off
     int j;
     for (j = 0; j < 130; j++) {
