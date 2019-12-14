@@ -66,12 +66,12 @@ void setup() {
   // temperatureServo.attach(2); // ?
 
   sunpixels.begin();
-  sunpixels.show();
   sunpixels.setBrightness(90);
+  sunpixels.show();
 
   cloudpixels.begin();
-  cloudpixels.show();
   cloudpixels.setBrightness(90);
+  cloudpixels.show();
 
   ticker.detach();
 }
@@ -158,7 +158,8 @@ void loop() {
           rotateSunMoon("moon");
 
           // Set moon LED
-          sunpixels.setPixelColor(0, sunpixels.Color(108, 108, 108));
+          sunpixels.setPixelColor(0, sunpixels.Color(255, 255, 255));
+          sunpixels.setBrightness(20);
           sunpixels.show(); // Send the updated pixel colors to the hardware.
 
           // TODO: Show LED moon phase (0, .25, .5, .75, 1) - 0 is new moon 1 is full moon
@@ -170,22 +171,27 @@ void loop() {
         if(weather == "Thunderstorm") {
           rotateClouds("on");
           cloudpixels.setPixelColor(0, sunpixels.Color(255, 246, 7)); // Yellow
+          cloudpixels.setBrightness(40);
           cloudpixels.show(); // Send
         } else if(weather == "Drizzle") {
           rotateClouds("on");
-          cloudpixels.setPixelColor(0, sunpixels.Color(00, 00, 255)); // Blue
+          cloudpixels.setPixelColor(0, sunpixels.Color(0, 0, 255)); // Blue
+          cloudpixels.setBrightness(40);
           cloudpixels.show(); // Send
         } else if(weather == "Rain") {
           rotateClouds("on");
-          cloudpixels.setPixelColor(0, sunpixels.Color(00, 00, 255)); // Blue
+          cloudpixels.setPixelColor(0, sunpixels.Color(0, 0, 255)); // Blue
+          cloudpixels.setBrightness(40);
           cloudpixels.show(); // Send
         } else if(weather == "Snow") {
           rotateClouds("on");
           cloudpixels.setPixelColor(0, sunpixels.Color(101, 253, 255)); // Cyan
+          cloudpixels.setBrightness(40);
           cloudpixels.show(); // Send
         } else if(weather == "Clouds") {
           rotateClouds("on");
           cloudpixels.setPixelColor(0, sunpixels.Color(255, 255, 255)); // White
+          cloudpixels.setBrightness(40);
           cloudpixels.show(); // Send
         } else if(weather == "Clear") {
           rotateClouds("off");
@@ -195,7 +201,8 @@ void loop() {
         } else {
           rotateClouds("off");
           Serial.print("Weather condition is some other condition: '");
-          cloudpixels.setPixelColor(0, sunpixels.Color(105, 105, 105)); // Dim White
+          cloudpixels.setPixelColor(0, sunpixels.Color(255, 255, 255)); // Dim White
+          cloudpixels.setBrightness(40);
           Serial.print(weather);
           Serial.println("'!");
         }
@@ -204,7 +211,7 @@ void loop() {
         Serial.print("Time: ");
         Serial.print(hourFormat12(timestamp));
         Serial.print(":");
-        Serial.print(minute(timestamp));
+        Serial.print(minute(timestamp)); 
         Serial.println(AMorPM);
 
         // if(temp < 35) {
