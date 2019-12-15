@@ -29,6 +29,14 @@ Adafruit_NeoPixel sunpixels(SUNPIXELS, SUNPIN, NEO_GRB + NEO_KHZ800);
 #define CLOUDPIXELS 1
 Adafruit_NeoPixel cloudpixels(CLOUDPIXELS, CLOUDPIN, NEO_GRB + NEO_KHZ800);
 
+#define TEMPPIN 13
+#define TEMPPIXELS 7
+Adafruit_NeoPixel temppixels(TEMPPIXELS, TEMPPIN, NEO_GRB + NEO_KHZ800);
+
+#define MOONPIN 5
+#define MOONPIXELS 4
+Adafruit_NeoPixel moonpixels(MOONPIXELS, MOONPIN, NEO_GRB + NEO_KHZ800);
+
 void tick() {
   // toggle state
   int state = digitalRead(2);
@@ -66,12 +74,20 @@ void setup() {
   // temperatureServo.attach(2); // ?
 
   sunpixels.begin();
-  sunpixels.setBrightness(90);
+  sunpixels.setBrightness(10);
   sunpixels.show();
 
   cloudpixels.begin();
-  cloudpixels.setBrightness(90);
+  cloudpixels.setBrightness(10);
   cloudpixels.show();
+
+  temppixels.begin();
+  temppixels.setBrightness(10);
+  temppixels.show();
+
+  moonpixels.begin();
+  moonpixels.setBrightness(10);
+  moonpixels.show();
 
   ticker.detach();
 }
@@ -155,42 +171,86 @@ void loop() {
         }
 
         if(timestamp < sunset && timestamp < sunrise || timestamp > sunset) { // 12AM to sunrise OR greater than sunset to 12AM
-          rotateSunMoon("moon");
-
-          // Set moon LED
-          sunpixels.setPixelColor(0, sunpixels.Color(255, 255, 255));
-          sunpixels.setBrightness(20);
-          sunpixels.show(); // Send the updated pixel colors to the hardware.
 
           // TODO: Show LED moon phase (0, .25, .5, .75, 1) - 0 is new moon 1 is full moon
           Serial.print("Moon phase: ");
           Serial.println(GetPhase(year(timestamp), month(timestamp), day(timestamp)));
+
+          Serial.println("phase?");
+          Serial.println(GetPhase(year(timestamp), month(timestamp), day(timestamp)));
+
+          if(GetPhase(year(timestamp), month(timestamp), day(timestamp)) == 0) {
+            moonpixels.setPixelColor(0, moonpixels.Color(0, 0, 0));
+            moonpixels.setPixelColor(1, moonpixels.Color(0, 0, 0));
+            moonpixels.setPixelColor(2, moonpixels.Color(0, 0, 0));
+            moonpixels.setPixelColor(3, moonpixels.Color(0, 0, 0));
+            moonpixels.setBrightness(0);
+            moonpixels.show();
+          }
+
+          if (GetPhase(year(timestamp), month(timestamp), day(timestamp)) == 0.25) {
+            moonpixels.setPixelColor(0, moonpixels.Color(255, 255, 255));
+            moonpixels.setPixelColor(1, moonpixels.Color(0, 0, 0));
+            moonpixels.setPixelColor(2, moonpixels.Color(0, 0, 0));
+            moonpixels.setPixelColor(3, moonpixels.Color(0, 0, 0));
+            moonpixels.setBrightness(20);
+            moonpixels.show();
+          }
+
+          if (GetPhase(year(timestamp), month(timestamp), day(timestamp)) == 0.5) {
+            moonpixels.setPixelColor(0, moonpixels.Color(255, 255, 255));
+            moonpixels.setPixelColor(1, moonpixels.Color(255, 255, 255));
+            moonpixels.setPixelColor(2, moonpixels.Color(0, 0, 0));
+            moonpixels.setPixelColor(3, moonpixels.Color(0, 0, 0));
+            moonpixels.setBrightness(20);
+            moonpixels.show();
+          }
+
+          if (GetPhase(year(timestamp), month(timestamp), day(timestamp)) == 0.75) {
+            moonpixels.setPixelColor(0, moonpixels.Color(255, 255, 255));
+            moonpixels.setPixelColor(1, moonpixels.Color(255, 255, 255));
+            moonpixels.setPixelColor(2, moonpixels.Color(255, 255, 255));
+            moonpixels.setPixelColor(3, moonpixels.Color(0, 0, 0));
+            moonpixels.setBrightness(20);
+            moonpixels.show();
+          }
+
+          if (GetPhase(year(timestamp), month(timestamp), day(timestamp)) == 1) {
+            moonpixels.setPixelColor(0, moonpixels.Color(255, 255, 255));
+            moonpixels.setPixelColor(1, moonpixels.Color(255, 255, 255));
+            moonpixels.setPixelColor(2, moonpixels.Color(255, 255, 255));
+            moonpixels.setPixelColor(3, moonpixels.Color(255, 25, 255));
+            moonpixels.setBrightness(20);
+            moonpixels.show();
+          }
+          
+          rotateSunMoon("moon");
         }
 
         // Weather condition checks
         if(weather == "Thunderstorm") {
           rotateClouds("on");
-          cloudpixels.setPixelColor(0, sunpixels.Color(255, 246, 7)); // Yellow
+          cloudpixels.setPixelColor(0, cloudpixels.Color(255, 246, 7)); // Yellow
           cloudpixels.setBrightness(40);
           cloudpixels.show(); // Send
         } else if(weather == "Drizzle") {
           rotateClouds("on");
-          cloudpixels.setPixelColor(0, sunpixels.Color(0, 0, 255)); // Blue
+          cloudpixels.setPixelColor(0, cloudpixels.Color(0, 0, 255)); // Blue
           cloudpixels.setBrightness(40);
           cloudpixels.show(); // Send
         } else if(weather == "Rain") {
           rotateClouds("on");
-          cloudpixels.setPixelColor(0, sunpixels.Color(0, 0, 255)); // Blue
+          cloudpixels.setPixelColor(0, cloudpixels.Color(0, 0, 255)); // Blue
           cloudpixels.setBrightness(40);
           cloudpixels.show(); // Send
         } else if(weather == "Snow") {
           rotateClouds("on");
-          cloudpixels.setPixelColor(0, sunpixels.Color(101, 253, 255)); // Cyan
+          cloudpixels.setPixelColor(0, cloudpixels.Color(101, 253, 255)); // Cyan
           cloudpixels.setBrightness(40);
           cloudpixels.show(); // Send
         } else if(weather == "Clouds") {
           rotateClouds("on");
-          cloudpixels.setPixelColor(0, sunpixels.Color(255, 255, 255)); // White
+          cloudpixels.setPixelColor(0, cloudpixels.Color(255, 255, 255)); // White
           cloudpixels.setBrightness(40);
           cloudpixels.show(); // Send
         } else if(weather == "Clear") {
@@ -201,7 +261,7 @@ void loop() {
         } else {
           rotateClouds("off");
           Serial.print("Weather condition is some other condition: '");
-          cloudpixels.setPixelColor(0, sunpixels.Color(255, 255, 255)); // Dim White
+          cloudpixels.setPixelColor(0, cloudpixels.Color(255, 255, 255)); // Dim White
           cloudpixels.setBrightness(40);
           Serial.print(weather);
           Serial.println("'!");
@@ -214,13 +274,34 @@ void loop() {
         Serial.print(minute(timestamp)); 
         Serial.println(AMorPM);
 
-        // if(temp < 35) {
-        //   changeColorByHex("Sun","0000FF");
-        // } else if (temp > 35 && temp < 70) {
-        //   changeColorByHex("Sun","00FF00");
-        // } else if (temp > 70) {
-        //   changeColorByHex("Sun","FF0000");
-        // }
+        if(temp < 35) {
+          temppixels.setPixelColor(0, temppixels.Color(255, 0, 0));
+          temppixels.setPixelColor(1, temppixels.Color(255, 0, 192));
+          temppixels.setPixelColor(2, temppixels.Color(186, 0, 255));
+          temppixels.setPixelColor(3, temppixels.Color(0, 12, 255));
+          temppixels.setPixelColor(4, temppixels.Color(0, 132, 255));
+          temppixels.setPixelColor(5, temppixels.Color(0, 255, 228));
+          temppixels.setPixelColor(6, temppixels.Color(0, 255, 18));
+          temppixels.show(); // Send
+        } else if (temp > 35 && temp < 70) {
+          temppixels.setPixelColor(0, temppixels.Color(255, 0, 0));
+          temppixels.setPixelColor(1, temppixels.Color(255, 0, 192));
+          temppixels.setPixelColor(2, temppixels.Color(186, 0, 255));
+          temppixels.setPixelColor(3, temppixels.Color(0, 12, 255));
+          temppixels.setPixelColor(4, temppixels.Color(0, 132, 255));
+          temppixels.setPixelColor(5, temppixels.Color(0, 255, 228));
+          temppixels.setPixelColor(6, temppixels.Color(0, 255, 18));
+          temppixels.show(); // Send
+        } else if (temp > 70) {
+          temppixels.setPixelColor(0, temppixels.Color(255, 0, 0));
+          temppixels.setPixelColor(1, temppixels.Color(255, 0, 192));
+          temppixels.setPixelColor(2, temppixels.Color(186, 0, 255));
+          temppixels.setPixelColor(3, temppixels.Color(0, 12, 255));
+          temppixels.setPixelColor(4, temppixels.Color(0, 132, 255));
+          temppixels.setPixelColor(5, temppixels.Color(0, 255, 228));
+          temppixels.setPixelColor(6, temppixels.Color(0, 255, 18));
+          temppixels.show(); // Send
+        }
       }
     } else {
       Serial.printf("[HTTP] GET... failed, error: %s\n", http.errorToString(httpCode).c_str());
