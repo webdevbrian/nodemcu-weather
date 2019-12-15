@@ -274,32 +274,68 @@ void loop() {
         Serial.print(minute(timestamp)); 
         Serial.println(AMorPM);
 
-        if(temp < 35) {
-          temppixels.setPixelColor(0, temppixels.Color(255, 0, 0));
-          temppixels.setPixelColor(1, temppixels.Color(255, 0, 192));
-          temppixels.setPixelColor(2, temppixels.Color(186, 0, 255));
-          temppixels.setPixelColor(3, temppixels.Color(0, 12, 255));
-          temppixels.setPixelColor(4, temppixels.Color(0, 132, 255));
-          temppixels.setPixelColor(5, temppixels.Color(0, 255, 228));
-          temppixels.setPixelColor(6, temppixels.Color(0, 255, 18));
+        if(temp < 25) { // Very cold
+          temppixels.setPixelColor(0, temppixels.Color(0, 168, 255));
+          temppixels.setPixelColor(1, temppixels.Color(0, 0, 0));
+          temppixels.setPixelColor(2, temppixels.Color(0, 0, 0));
+          temppixels.setPixelColor(3, temppixels.Color(0, 0, 0));
+          temppixels.setPixelColor(4, temppixels.Color(0, 0, 0));
+          temppixels.setPixelColor(5, temppixels.Color(0, 0, 0));
+          temppixels.setPixelColor(6, temppixels.Color(0, 0, 0));
           temppixels.show(); // Send
-        } else if (temp > 35 && temp < 70) {
-          temppixels.setPixelColor(0, temppixels.Color(255, 0, 0));
-          temppixels.setPixelColor(1, temppixels.Color(255, 0, 192));
-          temppixels.setPixelColor(2, temppixels.Color(186, 0, 255));
-          temppixels.setPixelColor(3, temppixels.Color(0, 12, 255));
-          temppixels.setPixelColor(4, temppixels.Color(0, 132, 255));
-          temppixels.setPixelColor(5, temppixels.Color(0, 255, 228));
-          temppixels.setPixelColor(6, temppixels.Color(0, 255, 18));
+        } else if (temp >= 25 && temp < 42) { // Cold
+          temppixels.setPixelColor(0, temppixels.Color(0, 0, 0));
+          temppixels.setPixelColor(1, temppixels.Color(0, 84, 255));
+          temppixels.setPixelColor(2, temppixels.Color(0, 0, 0));
+          temppixels.setPixelColor(3, temppixels.Color(0, 0, 0));
+          temppixels.setPixelColor(4, temppixels.Color(0, 0, 0));
+          temppixels.setPixelColor(5, temppixels.Color(0, 0, 0));
+          temppixels.setPixelColor(6, temppixels.Color(0, 0, 0));
           temppixels.show(); // Send
-        } else if (temp > 70) {
-          temppixels.setPixelColor(0, temppixels.Color(255, 0, 0));
-          temppixels.setPixelColor(1, temppixels.Color(255, 0, 192));
-          temppixels.setPixelColor(2, temppixels.Color(186, 0, 255));
-          temppixels.setPixelColor(3, temppixels.Color(0, 12, 255));
-          temppixels.setPixelColor(4, temppixels.Color(0, 132, 255));
-          temppixels.setPixelColor(5, temppixels.Color(0, 255, 228));
-          temppixels.setPixelColor(6, temppixels.Color(0, 255, 18));
+        } else if (temp >= 42 && temp < 60) { // Chilly
+          temppixels.setPixelColor(0, temppixels.Color(0, 0, 0));
+          temppixels.setPixelColor(1, temppixels.Color(0, 0, 0));
+          temppixels.setPixelColor(2, temppixels.Color(0, 12, 255));
+          temppixels.setPixelColor(3, temppixels.Color(0, 0, 0));
+          temppixels.setPixelColor(4, temppixels.Color(0, 0, 0));
+          temppixels.setPixelColor(5, temppixels.Color(0, 0, 0));
+          temppixels.setPixelColor(6, temppixels.Color(0, 0, 0));
+          temppixels.show(); // Send
+        } else if (temp >= 60 && temp < 75) { // Warm
+          temppixels.setPixelColor(0, temppixels.Color(0, 0, 0));
+          temppixels.setPixelColor(1, temppixels.Color(0, 0, 0));
+          temppixels.setPixelColor(2, temppixels.Color(0, 0, 0));
+          temppixels.setPixelColor(3, temppixels.Color(120, 255, 0));
+          temppixels.setPixelColor(4, temppixels.Color(0, 0, 0));
+          temppixels.setPixelColor(5, temppixels.Color(0, 0, 0));
+          temppixels.setPixelColor(6, temppixels.Color(0, 0, 0));
+          temppixels.show(); // Send
+        } else if (temp >= 75 && temp < 84) { // Hot
+          temppixels.setPixelColor(0, temppixels.Color(0, 0, 0));
+          temppixels.setPixelColor(1, temppixels.Color(0, 0, 0));
+          temppixels.setPixelColor(2, temppixels.Color(0, 0, 0));
+          temppixels.setPixelColor(3, temppixels.Color(0, 0, 0));
+          temppixels.setPixelColor(4, temppixels.Color(255, 246, 0));
+          temppixels.setPixelColor(5, temppixels.Color(0, 0, 0));
+          temppixels.setPixelColor(6, temppixels.Color(0, 0, 0));
+          temppixels.show(); // Send
+        } else if (temp >= 84 && temp < 100) {
+          temppixels.setPixelColor(0, temppixels.Color(0, 0, 0));
+          temppixels.setPixelColor(1, temppixels.Color(0, 0, 0));
+          temppixels.setPixelColor(2, temppixels.Color(0, 0, 0));
+          temppixels.setPixelColor(3, temppixels.Color(0, 0, 0));
+          temppixels.setPixelColor(4, temppixels.Color(0, 0, 0));
+          temppixels.setPixelColor(5, temppixels.Color(255, 18, 0));
+          temppixels.setPixelColor(6, temppixels.Color(0, 0, 0));
+          temppixels.show(); // Send
+        } else if (temp > 100) {
+          temppixels.setPixelColor(0, temppixels.Color(0, 0, 0));
+          temppixels.setPixelColor(1, temppixels.Color(0, 0, 0));
+          temppixels.setPixelColor(2, temppixels.Color(0, 0, 0));
+          temppixels.setPixelColor(3, temppixels.Color(0, 0, 0));
+          temppixels.setPixelColor(4, temppixels.Color(0, 0, 0));
+          temppixels.setPixelColor(5, temppixels.Color(0, 0, 0));
+          temppixels.setPixelColor(6, temppixels.Color(240, 0, 255));
           temppixels.show(); // Send
         }
       }
