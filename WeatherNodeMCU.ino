@@ -71,7 +71,12 @@ void setup() {
 
   sunMoonServo.attach(2); // D4
   cloudServo.attach(3); // RX
-  // temperatureServo.attach(2); // ?
+
+  // Clear the LEDs for new data
+  sunpixels.clear();
+  cloudpixels.clear();
+  temppixels.clear();
+  moonpixels.clear();
 
   sunpixels.begin();
   sunpixels.setBrightness(10);
@@ -82,18 +87,12 @@ void setup() {
   cloudpixels.show();
 
   temppixels.begin();
-  temppixels.setBrightness(10);
+  temppixels.setBrightness(50);
   temppixels.show();
 
   moonpixels.begin();
   moonpixels.setBrightness(10);
   moonpixels.show();
-
-  // Clear the LEDs for new data
-  sunpixels.clear();
-  cloudpixels.clear();
-  temppixels.clear();
-  moonpixels.clear();
 
   ticker.detach();
 }
@@ -181,7 +180,6 @@ void loop() {
         }
 
         if(timestamp < sunset && timestamp < sunrise || timestamp > sunset) { // 12AM to sunrise OR greater than sunset to 12AM
-
           // Turn off sun LED
           sunpixels.clear();
 
@@ -245,7 +243,8 @@ void loop() {
           cloudpixels.show(); // Send
 
           // Turn off sun LED
-          sunpixels.clear();
+          sunpixels.setBrightness(0);
+          sunpixels.show();
         } else if(weather == "Drizzle") {
           rotateClouds("on");
           cloudpixels.setPixelColor(0, cloudpixels.Color(0, 0, 255)); // Blue
@@ -253,7 +252,8 @@ void loop() {
           cloudpixels.show(); // Send
 
           // Turn off sun LED
-          sunpixels.clear();
+          sunpixels.setBrightness(0);
+          sunpixels.show();
         } else if(weather == "Rain") {
           rotateClouds("on");
           cloudpixels.setPixelColor(0, cloudpixels.Color(0, 0, 255)); // Blue
@@ -261,7 +261,8 @@ void loop() {
           cloudpixels.show(); // Send
 
           // Turn off sun LED
-          sunpixels.clear();
+          sunpixels.setBrightness(0);
+          sunpixels.show();
         } else if(weather == "Snow") {
           rotateClouds("on");
           cloudpixels.setPixelColor(0, cloudpixels.Color(101, 253, 255)); // Cyan
@@ -269,7 +270,8 @@ void loop() {
           cloudpixels.show(); // Send
 
           // Turn off sun LED
-          sunpixels.clear();
+          sunpixels.setBrightness(0);
+          sunpixels.show();
         } else if(weather == "Clouds") {
           rotateClouds("on");
           cloudpixels.setPixelColor(0, cloudpixels.Color(255, 255, 255)); // White
@@ -289,7 +291,7 @@ void loop() {
           Serial.println("'!");
         }
 
-        // This gets the local time of the lat / long, a.k.a local time of device or set weather location :)
+        // This gets the local time of the lat / long, a.k.a local time of device or set weather location :) - delayed by the interval of when the weather was recorded
         Serial.print("Time: ");
         Serial.print(hourFormat12(timestamp));
         Serial.print(":");
