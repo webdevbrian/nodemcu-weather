@@ -181,8 +181,8 @@ void loop() {
         }
 
         if(timestamp < sunset && timestamp < sunrise || timestamp > sunset) { // 12AM to sunrise OR greater than sunset to 12AM
-          
-          // Turn sun LED
+
+          // Turn off sun LED
           sunpixels.clear();
 
           // TODO: Show LED moon phase (0, .25, .5, .75, 1) - 0 is new moon 1 is full moon
@@ -243,21 +243,33 @@ void loop() {
           cloudpixels.setPixelColor(0, cloudpixels.Color(255, 246, 7)); // Yellow
           cloudpixels.setBrightness(40);
           cloudpixels.show(); // Send
+
+          // Turn off sun LED
+          sunpixels.clear();
         } else if(weather == "Drizzle") {
           rotateClouds("on");
           cloudpixels.setPixelColor(0, cloudpixels.Color(0, 0, 255)); // Blue
           cloudpixels.setBrightness(40);
           cloudpixels.show(); // Send
+
+          // Turn off sun LED
+          sunpixels.clear();
         } else if(weather == "Rain") {
           rotateClouds("on");
           cloudpixels.setPixelColor(0, cloudpixels.Color(0, 0, 255)); // Blue
           cloudpixels.setBrightness(40);
           cloudpixels.show(); // Send
+
+          // Turn off sun LED
+          sunpixels.clear();
         } else if(weather == "Snow") {
           rotateClouds("on");
           cloudpixels.setPixelColor(0, cloudpixels.Color(101, 253, 255)); // Cyan
           cloudpixels.setBrightness(40);
           cloudpixels.show(); // Send
+
+          // Turn off sun LED
+          sunpixels.clear();
         } else if(weather == "Clouds") {
           rotateClouds("on");
           cloudpixels.setPixelColor(0, cloudpixels.Color(255, 255, 255)); // White
@@ -281,7 +293,7 @@ void loop() {
         Serial.print("Time: ");
         Serial.print(hourFormat12(timestamp));
         Serial.print(":");
-        Serial.print(minute(timestamp)); 
+        Serial.print(minute(timestamp));
         Serial.println(AMorPM);
 
         if(temp < 25) { // Very cold
