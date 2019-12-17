@@ -21,26 +21,26 @@ Servo sunMoonServo;
 Servo cloudServo;
 Servo temperatureServo;
 
-#define SUNPIN 14
+#define SUNPIN 14 // D5
 #define SUNPIXELS 1
 Adafruit_NeoPixel sunpixels(SUNPIXELS, SUNPIN, NEO_GRB + NEO_KHZ800);
 
-#define CLOUDPIN 12
+#define CLOUDPIN 12 // D6
 #define CLOUDPIXELS 1
 Adafruit_NeoPixel cloudpixels(CLOUDPIXELS, CLOUDPIN, NEO_GRB + NEO_KHZ800);
 
-#define TEMPPIN 13
+#define TEMPPIN 13 // D7
 #define TEMPPIXELS 7
 Adafruit_NeoPixel temppixels(TEMPPIXELS, TEMPPIN, NEO_GRB + NEO_KHZ800);
 
-#define MOONPIN 5
+#define MOONPIN 5 // D1
 #define MOONPIXELS 4
 Adafruit_NeoPixel moonpixels(MOONPIXELS, MOONPIN, NEO_GRB + NEO_KHZ800);
 
 void tick() {
   // toggle state
-  int state = digitalRead(2);
-  digitalWrite(2, !state);
+  int state = digitalRead(SUNPIN);
+  digitalWrite(SUNPIN, !state);
 }
 
 void configModeCallback (WiFiManager *myWiFiManager) {
@@ -88,6 +88,12 @@ void setup() {
   moonpixels.begin();
   moonpixels.setBrightness(10);
   moonpixels.show();
+
+  // Clear the LEDs for new data
+  sunpixels.clear();
+  cloudpixels.clear();
+  temppixels.clear();
+  moonpixels.clear();
 
   ticker.detach();
 }
@@ -161,22 +167,26 @@ void loop() {
         // Clear the LEDs for new data
         sunpixels.clear();
         cloudpixels.clear();
+        temppixels.clear();
+        moonpixels.clear();
 
         if(timestamp > sunrise && timestamp < sunset) { // Greater than the sunrise to dusk OR
           rotateSunMoon("sun");
 
           // Set Sun LED - TODO: add another neopixel for sun
-          sunpixels.setPixelColor(0, sunpixels.Color(255, 246, 11));
+          sunpixels.setPixelColor(0, cloudpixels.Color(255, 255, 0)); // Dim Yellow
+          sunpixels.setBrightness(40);
           sunpixels.show(); // Send the updated pixel colors to the hardware.
+          Serial.println("Sun's up");
         }
 
         if(timestamp < sunset && timestamp < sunrise || timestamp > sunset) { // 12AM to sunrise OR greater than sunset to 12AM
+          
+          // Turn sun LED
+          sunpixels.clear();
 
           // TODO: Show LED moon phase (0, .25, .5, .75, 1) - 0 is new moon 1 is full moon
           Serial.print("Moon phase: ");
-          Serial.println(GetPhase(year(timestamp), month(timestamp), day(timestamp)));
-
-          Serial.println("phase?");
           Serial.println(GetPhase(year(timestamp), month(timestamp), day(timestamp)));
 
           if(GetPhase(year(timestamp), month(timestamp), day(timestamp)) == 0) {
@@ -189,28 +199,28 @@ void loop() {
           }
 
           if (GetPhase(year(timestamp), month(timestamp), day(timestamp)) == 0.25) {
-            moonpixels.setPixelColor(0, moonpixels.Color(255, 255, 255));
+            moonpixels.setPixelColor(0, moonpixels.Color(0, 0, 0));
             moonpixels.setPixelColor(1, moonpixels.Color(0, 0, 0));
             moonpixels.setPixelColor(2, moonpixels.Color(0, 0, 0));
-            moonpixels.setPixelColor(3, moonpixels.Color(0, 0, 0));
+            moonpixels.setPixelColor(3, moonpixels.Color(255, 255, 255));
             moonpixels.setBrightness(20);
             moonpixels.show();
           }
 
           if (GetPhase(year(timestamp), month(timestamp), day(timestamp)) == 0.5) {
-            moonpixels.setPixelColor(0, moonpixels.Color(255, 255, 255));
-            moonpixels.setPixelColor(1, moonpixels.Color(255, 255, 255));
-            moonpixels.setPixelColor(2, moonpixels.Color(0, 0, 0));
-            moonpixels.setPixelColor(3, moonpixels.Color(0, 0, 0));
+            moonpixels.setPixelColor(0, moonpixels.Color(0, 0, 0));
+            moonpixels.setPixelColor(1, moonpixels.Color(0, 0, 0));
+            moonpixels.setPixelColor(2, moonpixels.Color(255, 255, 255));
+            moonpixels.setPixelColor(3, moonpixels.Color(255, 255, 255));
             moonpixels.setBrightness(20);
             moonpixels.show();
           }
 
           if (GetPhase(year(timestamp), month(timestamp), day(timestamp)) == 0.75) {
-            moonpixels.setPixelColor(0, moonpixels.Color(255, 255, 255));
+            moonpixels.setPixelColor(0, moonpixels.Color(0, 0, 0));
             moonpixels.setPixelColor(1, moonpixels.Color(255, 255, 255));
             moonpixels.setPixelColor(2, moonpixels.Color(255, 255, 255));
-            moonpixels.setPixelColor(3, moonpixels.Color(0, 0, 0));
+            moonpixels.setPixelColor(3, moonpixels.Color(255, 255, 255));
             moonpixels.setBrightness(20);
             moonpixels.show();
           }
@@ -219,11 +229,11 @@ void loop() {
             moonpixels.setPixelColor(0, moonpixels.Color(255, 255, 255));
             moonpixels.setPixelColor(1, moonpixels.Color(255, 255, 255));
             moonpixels.setPixelColor(2, moonpixels.Color(255, 255, 255));
-            moonpixels.setPixelColor(3, moonpixels.Color(255, 25, 255));
+            moonpixels.setPixelColor(3, moonpixels.Color(255, 255, 255));
             moonpixels.setBrightness(20);
             moonpixels.show();
           }
-          
+
           rotateSunMoon("moon");
         }
 
