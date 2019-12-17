@@ -203,7 +203,7 @@ void loop() {
             moonpixels.setPixelColor(1, moonpixels.Color(0, 0, 0));
             moonpixels.setPixelColor(2, moonpixels.Color(0, 0, 0));
             moonpixels.setPixelColor(3, moonpixels.Color(255, 255, 255));
-            moonpixels.setBrightness(20);
+            moonpixels.setBrightness(40);
             moonpixels.show();
           }
 
@@ -212,7 +212,7 @@ void loop() {
             moonpixels.setPixelColor(1, moonpixels.Color(0, 0, 0));
             moonpixels.setPixelColor(2, moonpixels.Color(255, 255, 255));
             moonpixels.setPixelColor(3, moonpixels.Color(255, 255, 255));
-            moonpixels.setBrightness(20);
+            moonpixels.setBrightness(40);
             moonpixels.show();
           }
 
@@ -221,7 +221,7 @@ void loop() {
             moonpixels.setPixelColor(1, moonpixels.Color(255, 255, 255));
             moonpixels.setPixelColor(2, moonpixels.Color(255, 255, 255));
             moonpixels.setPixelColor(3, moonpixels.Color(255, 255, 255));
-            moonpixels.setBrightness(20);
+            moonpixels.setBrightness(40);
             moonpixels.show();
           }
 
@@ -230,7 +230,7 @@ void loop() {
             moonpixels.setPixelColor(1, moonpixels.Color(255, 255, 255));
             moonpixels.setPixelColor(2, moonpixels.Color(255, 255, 255));
             moonpixels.setPixelColor(3, moonpixels.Color(255, 255, 255));
-            moonpixels.setBrightness(20);
+            moonpixels.setBrightness(40);
             moonpixels.show();
           }
 
