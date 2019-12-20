@@ -179,7 +179,7 @@ void loop() {
           // Set Sun LED - TODO: add another neopixel for sun
           sunpixels.setPixelColor(0, cloudpixels.Color(255, 255, 0)); // Dim Yellow
           sunpixels.setBrightness(40);
-          sunpixels.show(); // Send the updated pixel colors to the hardware.
+          sunpixels.show();
           Serial.println("Sun's up");
         }
 
@@ -188,7 +188,6 @@ void loop() {
           sunpixels.clear();
           sunpixels.show();
 
-          // TODO: Show LED moon phase (0, .25, .5, .75, 1) - 0 is new moon 1 is full moon
           Serial.print("Moon phase: ");
           Serial.println(GetPhase(year(timestamp), month(timestamp), day(timestamp)));
 
@@ -311,7 +310,7 @@ void loop() {
           temppixels.setPixelColor(4, temppixels.Color(0, 0, 0));
           temppixels.setPixelColor(5, temppixels.Color(0, 0, 0));
           temppixels.setPixelColor(6, temppixels.Color(0, 0, 0));
-          temppixels.show(); // Send
+          temppixels.show();
         } else if (temp >= 25 && temp < 42) { // Cold
           temppixels.setPixelColor(0, temppixels.Color(0, 0, 0));
           temppixels.setPixelColor(1, temppixels.Color(0, 84, 255));
@@ -320,7 +319,7 @@ void loop() {
           temppixels.setPixelColor(4, temppixels.Color(0, 0, 0));
           temppixels.setPixelColor(5, temppixels.Color(0, 0, 0));
           temppixels.setPixelColor(6, temppixels.Color(0, 0, 0));
-          temppixels.show(); // Send
+          temppixels.show();
         } else if (temp >= 42 && temp < 60) { // Chilly
           temppixels.setPixelColor(0, temppixels.Color(0, 0, 0));
           temppixels.setPixelColor(1, temppixels.Color(0, 0, 0));
@@ -329,7 +328,7 @@ void loop() {
           temppixels.setPixelColor(4, temppixels.Color(0, 0, 0));
           temppixels.setPixelColor(5, temppixels.Color(0, 0, 0));
           temppixels.setPixelColor(6, temppixels.Color(0, 0, 0));
-          temppixels.show(); // Send
+          temppixels.show();
         } else if (temp >= 60 && temp < 75) { // Perfect
           temppixels.setPixelColor(0, temppixels.Color(0, 0, 0));
           temppixels.setPixelColor(1, temppixels.Color(0, 0, 0));
@@ -338,7 +337,7 @@ void loop() {
           temppixels.setPixelColor(4, temppixels.Color(0, 0, 0));
           temppixels.setPixelColor(5, temppixels.Color(0, 0, 0));
           temppixels.setPixelColor(6, temppixels.Color(0, 0, 0));
-          temppixels.show(); // Send
+          temppixels.show();
         } else if (temp >= 75 && temp < 84) { // Warm
           temppixels.setPixelColor(0, temppixels.Color(0, 0, 0));
           temppixels.setPixelColor(1, temppixels.Color(0, 0, 0));
@@ -347,7 +346,7 @@ void loop() {
           temppixels.setPixelColor(4, temppixels.Color(255, 246, 0));
           temppixels.setPixelColor(5, temppixels.Color(0, 0, 0));
           temppixels.setPixelColor(6, temppixels.Color(0, 0, 0));
-          temppixels.show(); // Send
+          temppixels.show();
         } else if (temp >= 84 && temp < 100) { // Hot
           temppixels.setPixelColor(0, temppixels.Color(0, 0, 0));
           temppixels.setPixelColor(1, temppixels.Color(0, 0, 0));
@@ -356,7 +355,7 @@ void loop() {
           temppixels.setPixelColor(4, temppixels.Color(0, 0, 0));
           temppixels.setPixelColor(5, temppixels.Color(255, 18, 0));
           temppixels.setPixelColor(6, temppixels.Color(0, 0, 0));
-          temppixels.show(); // Send
+          temppixels.show();
         } else if (temp > 100) { // Very hot
           temppixels.setPixelColor(0, temppixels.Color(0, 0, 0));
           temppixels.setPixelColor(1, temppixels.Color(0, 0, 0));
@@ -365,7 +364,7 @@ void loop() {
           temppixels.setPixelColor(4, temppixels.Color(0, 0, 0));
           temppixels.setPixelColor(5, temppixels.Color(0, 0, 0));
           temppixels.setPixelColor(6, temppixels.Color(240, 0, 255));
-          temppixels.show(); // Send
+          temppixels.show();
         }
       }
     } else {
@@ -391,7 +390,7 @@ void rotateSunMoon(String sunMoon) {
     Serial.print("Turning to sun...");
     Serial.println(sunMoonState);
 
-    //Rotate servo to Sun
+    // Rotate servo to Sun
     for (i = 0; i < 90; i++) {
       sunMoonServo.write(i);
       delay(30);
