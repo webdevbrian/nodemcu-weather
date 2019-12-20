@@ -170,6 +170,8 @@ void loop() {
         moonpixels.clear();
 
         if(timestamp > sunrise && timestamp < sunset) { // Greater than the sunrise to dusk OR
+          // Turn off moon LED
+          moonpixels.clear();
           rotateSunMoon("sun");
 
           // Set Sun LED - TODO: add another neopixel for sun
