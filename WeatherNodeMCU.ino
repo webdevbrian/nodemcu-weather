@@ -172,6 +172,8 @@ void loop() {
         if(timestamp > sunrise && timestamp < sunset) { // Greater than the sunrise to dusk OR
           // Turn off moon LED
           moonpixels.clear();
+          moonpixels.show();
+
           rotateSunMoon("sun");
 
           // Set Sun LED - TODO: add another neopixel for sun
@@ -184,6 +186,7 @@ void loop() {
         if(timestamp < sunset && timestamp < sunrise || timestamp > sunset) { // 12AM to sunrise OR greater than sunset to 12AM
           // Turn off sun LED
           sunpixels.clear();
+          sunpixels.show();
 
           // TODO: Show LED moon phase (0, .25, .5, .75, 1) - 0 is new moon 1 is full moon
           Serial.print("Moon phase: ");
