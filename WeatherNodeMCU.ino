@@ -79,7 +79,7 @@ void setup() {
   moonpixels.clear();
 
   sunpixels.begin();
-  sunpixels.setBrightness(10);
+  sunpixels.setBrightness(60);
   sunpixels.show();
 
   cloudpixels.begin();
@@ -99,11 +99,12 @@ void setup() {
 
 int sunMoonState;
 int cloudState;
+int initialized = 0;
 
 void loop() {
   WiFiClient client;
   HTTPClient http;
-  String WeatherHTTPURL = String("http://api.openweathermap.org/data/2.5/weather?lat=41.548&lon=-73.205&appid=" + OWAPIKEY);
+  String WeatherHTTPURL = String("http://api.openweathermap.org/data/2.5/weather?lat=41.592&lon=-73.419&appid=" + OWAPIKEY);
   Serial.println(WeatherHTTPURL);
   Serial.print("[HTTP] OWM begin...\n");
   if (http.begin(WeatherHTTPURL)) {
@@ -169,18 +170,42 @@ void loop() {
         temppixels.clear();
         moonpixels.clear();
 
+        // Only run on first pass to set servos
+        if(initialized == 0) {
+          rotateSunMoon("moon");
+          rotateSunMoon("sun");
+          rotateClouds("on");
+          rotateClouds("off");
+        }
+
+        //
+        // SERVO TESTS
+        //
+
+        // setMoonPhase(timestamp);
+        // delay(1000);
+        // rotateSunMoon("sun");
+        // delay(1000);
+        // rotateSunMoon("moon");
+        // delay(1000);
+        // rotateSunMoon("sun");
+        // delay(1000);
+        // rotateClouds("on");
+        // delay(1000);
+        // rotateClouds("off");
+        // delay(1000);
+
         if(timestamp > sunrise && timestamp < sunset) { // Greater than the sunrise to dusk OR
           // Turn off moon LED
           moonpixels.clear();
           moonpixels.show();
 
-          rotateSunMoon("sun");
-
           // Set Sun LED - TODO: add another neopixel for sun
           sunpixels.setPixelColor(0, cloudpixels.Color(255, 255, 0)); // Dim Yellow
-          sunpixels.setBrightness(40);
+          sunpixels.setBrightness(80);
           sunpixels.show();
           Serial.println("Sun's up");
+          rotateSunMoon("sun");
         }
 
         if(timestamp < sunset && timestamp < sunrise || timestamp > sunset) { // 12AM to sunrise OR greater than sunset to 12AM
@@ -191,51 +216,7 @@ void loop() {
           Serial.print("Moon phase: ");
           Serial.println(GetPhase(year(timestamp), month(timestamp), day(timestamp)));
 
-          if(GetPhase(year(timestamp), month(timestamp), day(timestamp)) == 0) {
-            moonpixels.setPixelColor(0, moonpixels.Color(0, 0, 0));
-            moonpixels.setPixelColor(1, moonpixels.Color(0, 0, 0));
-            moonpixels.setPixelColor(2, moonpixels.Color(0, 0, 0));
-            moonpixels.setPixelColor(3, moonpixels.Color(0, 0, 0));
-            moonpixels.setBrightness(0);
-            moonpixels.show();
-          }
-
-          if (GetPhase(year(timestamp), month(timestamp), day(timestamp)) == 0.25) {
-            moonpixels.setPixelColor(0, moonpixels.Color(0, 0, 0));
-            moonpixels.setPixelColor(1, moonpixels.Color(0, 0, 0));
-            moonpixels.setPixelColor(2, moonpixels.Color(0, 0, 0));
-            moonpixels.setPixelColor(3, moonpixels.Color(255, 255, 255));
-            moonpixels.setBrightness(40);
-            moonpixels.show();
-          }
-
-          if (GetPhase(year(timestamp), month(timestamp), day(timestamp)) == 0.5) {
-            moonpixels.setPixelColor(0, moonpixels.Color(0, 0, 0));
-            moonpixels.setPixelColor(1, moonpixels.Color(0, 0, 0));
-            moonpixels.setPixelColor(2, moonpixels.Color(255, 255, 255));
-            moonpixels.setPixelColor(3, moonpixels.Color(255, 255, 255));
-            moonpixels.setBrightness(40);
-            moonpixels.show();
-          }
-
-          if (GetPhase(year(timestamp), month(timestamp), day(timestamp)) == 0.75) {
-            moonpixels.setPixelColor(0, moonpixels.Color(0, 0, 0));
-            moonpixels.setPixelColor(1, moonpixels.Color(255, 255, 255));
-            moonpixels.setPixelColor(2, moonpixels.Color(255, 255, 255));
-            moonpixels.setPixelColor(3, moonpixels.Color(255, 255, 255));
-            moonpixels.setBrightness(40);
-            moonpixels.show();
-          }
-
-          if (GetPhase(year(timestamp), month(timestamp), day(timestamp)) == 1) {
-            moonpixels.setPixelColor(0, moonpixels.Color(255, 255, 255));
-            moonpixels.setPixelColor(1, moonpixels.Color(255, 255, 255));
-            moonpixels.setPixelColor(2, moonpixels.Color(255, 255, 255));
-            moonpixels.setPixelColor(3, moonpixels.Color(255, 255, 255));
-            moonpixels.setBrightness(40);
-            moonpixels.show();
-          }
-
+          setMoonPhase(timestamp);
           rotateSunMoon("moon");
         }
 
@@ -254,28 +235,16 @@ void loop() {
           cloudpixels.setPixelColor(0, cloudpixels.Color(0, 0, 255)); // Blue
           cloudpixels.setBrightness(40);
           cloudpixels.show(); // Send
-
-          // Turn off sun LED
-          sunpixels.setBrightness(0);
-          sunpixels.show();
         } else if(weather == "Rain") {
           rotateClouds("on");
           cloudpixels.setPixelColor(0, cloudpixels.Color(0, 0, 255)); // Blue
           cloudpixels.setBrightness(40);
           cloudpixels.show(); // Send
-
-          // Turn off sun LED
-          sunpixels.setBrightness(0);
-          sunpixels.show();
         } else if(weather == "Snow") {
           rotateClouds("on");
           cloudpixels.setPixelColor(0, cloudpixels.Color(101, 253, 255)); // Cyan
           cloudpixels.setBrightness(40);
           cloudpixels.show(); // Send
-
-          // Turn off sun LED
-          sunpixels.setBrightness(0);
-          sunpixels.show();
         } else if(weather == "Clouds") {
           rotateClouds("on");
           cloudpixels.setPixelColor(0, cloudpixels.Color(255, 255, 255)); // White
@@ -376,7 +345,55 @@ void loop() {
     Serial.printf("[HTTP] Unable to connect\n");
   }
 
+  initialized = 1;
   delay(20000); // Refresh every minute (eventually change this back to 60000)
+}
+
+void setMoonPhase(int timestamp) {
+  if(GetPhase(year(timestamp), month(timestamp), day(timestamp)) == 0) {
+    moonpixels.setPixelColor(0, moonpixels.Color(0, 0, 255));
+    moonpixels.setPixelColor(1, moonpixels.Color(0, 0, 255));
+    moonpixels.setPixelColor(2, moonpixels.Color(0, 0, 255));
+    moonpixels.setPixelColor(3, moonpixels.Color(0, 0, 255));
+    moonpixels.setBrightness(2);
+    moonpixels.show();
+  }
+
+  if (GetPhase(year(timestamp), month(timestamp), day(timestamp)) == 0.25) {
+    moonpixels.setPixelColor(0, moonpixels.Color(255, 255, 255));
+    moonpixels.setPixelColor(1, moonpixels.Color(0, 0, 0));
+    moonpixels.setPixelColor(2, moonpixels.Color(0, 0, 0));
+    moonpixels.setPixelColor(3, moonpixels.Color(0, 0, 0));
+    moonpixels.setBrightness(40);
+    moonpixels.show();
+  }
+
+  if (GetPhase(year(timestamp), month(timestamp), day(timestamp)) == 0.5) {
+    moonpixels.setPixelColor(0, moonpixels.Color(255, 255, 255));
+    moonpixels.setPixelColor(1, moonpixels.Color(255, 255, 255));
+    moonpixels.setPixelColor(2, moonpixels.Color(0, 0, 0));
+    moonpixels.setPixelColor(3, moonpixels.Color(0, 0, 0));
+    moonpixels.setBrightness(40);
+    moonpixels.show();
+  }
+
+  if (GetPhase(year(timestamp), month(timestamp), day(timestamp)) == 0.75) {
+    moonpixels.setPixelColor(0, moonpixels.Color(255, 255, 255));
+    moonpixels.setPixelColor(1, moonpixels.Color(255, 255, 255));
+    moonpixels.setPixelColor(2, moonpixels.Color(255, 255, 255));
+    moonpixels.setPixelColor(3, moonpixels.Color(0, 0, 0));
+    moonpixels.setBrightness(40);
+    moonpixels.show();
+  }
+
+  if (GetPhase(year(timestamp), month(timestamp), day(timestamp)) == 1) {
+    moonpixels.setPixelColor(0, moonpixels.Color(255, 255, 255));
+    moonpixels.setPixelColor(1, moonpixels.Color(255, 255, 255));
+    moonpixels.setPixelColor(2, moonpixels.Color(255, 255, 255));
+    moonpixels.setPixelColor(3, moonpixels.Color(255, 255, 255));
+    moonpixels.setBrightness(40);
+    moonpixels.show();
+  }
 }
 
 void rotateSunMoon(String sunMoon) {
@@ -429,9 +446,9 @@ void rotateClouds(String onOff) {
     Serial.println(cloudState);
 
     // Rotate clouds on
-    for (j = 140; j > 0; j--) {
+    for (j = 140; j > 70; j--) {
       cloudServo.write(j);
-      delay(30);
+      delay(20);
     }
 
     cloudState = 1;
@@ -446,10 +463,9 @@ void rotateClouds(String onOff) {
     Serial.println(cloudState);
 
     // Rotate clouds off
-    int j;
-    for (j = 0; j < 130; j++) {
+    for (j = 70; j < 140; j++) {
       cloudServo.write(j);
-      delay(30);
+      delay(20);
     }
 
     cloudState = 0;
