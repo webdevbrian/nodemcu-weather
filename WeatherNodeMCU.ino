@@ -220,6 +220,10 @@ void loop() {
           rotateSunMoon("moon");
         }
 
+        // Clear out cloud LED before setting
+        cloudpixels.setBrightness(0);
+        cloudpixels.show();
+
         // Weather condition checks
         if(weather == "Thunderstorm") {
           rotateClouds("on");
