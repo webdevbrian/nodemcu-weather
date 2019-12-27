@@ -1,4 +1,4 @@
-# WeatherNodeMCU
+# Weather 'Tellinator' 3000
  
 ![NodeMCU Weather station](https://imgur.com/dnuezaX.jpg)
 
