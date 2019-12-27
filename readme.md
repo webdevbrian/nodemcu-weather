@@ -14,6 +14,6 @@ Finally it has a "temperature tower" that labels how cold it is, also having ano
 
 Everything is powered by the 5V usb connection, no need for VIN power.
 
-The enclosure and arms I designed in 3D CAD are all 3D Printed and can be found here for download: (link).
+The enclosure and arms I designed in 3D CAD are all 3D Printed and can be found here for download: https://www.thingiverse.com/thing:4070408
 
 Feel free to fork an add pull requests on bugs / improvements so I can check out and review!
