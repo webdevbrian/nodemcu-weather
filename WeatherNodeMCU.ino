@@ -66,7 +66,7 @@ void setup() {
   // wifiManager.resetSettings();
 
   // Set the SSID name
-  wifiManager.autoConnect("NodeMCURGBWifi");
+  wifiManager.autoConnect("WeatherTellinator3000");
   Serial.println("Connected to Wifi.");
 
   sunMoonServo.attach(2); // D4
